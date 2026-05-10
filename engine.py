@@ -564,14 +564,26 @@ def iterative_search(board: chess.Board,
                      info_callback=None) -> tuple[chess.Move | None, float]:
     """
     Iterative deepening: search depth 1, 2, 3, ... until either max_depth
-    is reached or the time budget is exhausted.
+    is reached, the time budget is exhausted, or the principal variation
+    has stabilized for several iterations (no point searching deeper if
+    the score and best move haven't moved).
     """
 
-    deadline = time.monotonic() + time_budget_s if time_budget_s else None
+    legal = list(board.legal_moves)
 
-    fallback = next(iter(board.legal_moves), None)
-    best_move: chess.Move | None = fallback
+    # Forced move: only one legal option, no need to search at all. Common
+    # in forced recaptures / forced king moves -- saves us seconds per game.
+    if len(legal) == 1:
+        return legal[0], 0.0
+
+    deadline = time.monotonic() + time_budget_s if time_budget_s else None
+    start = time.monotonic()
+
+    best_move: chess.Move | None = legal[0] if legal else None
     best_score: float = 0.0
+    prev_score: float | None = None
+    prev_move: chess.Move | None = None
+    stable_iters = 0
 
     for depth in range(1, max_depth + 1):
         d = None if depth == 1 else deadline
@@ -586,8 +598,30 @@ def iterative_search(board: chess.Board,
             if info_callback is not None:
                 info_callback(depth, score, move)
 
+        # Found a forced mate -- no point searching deeper.
         if score == math.inf or score == -math.inf:
             break
+
+        # Adaptive early-exit: if the best move and score have been stable
+        # across the last few iterations and we've already used a meaningful
+        # chunk of our budget, stop. Searching deeper rarely changes the
+        # decision in quiet positions; saves time for critical ones.
+        if prev_score is not None and prev_move is not None:
+            score_stable = abs(score - prev_score) < 25
+            move_stable = move == prev_move
+            if score_stable and move_stable:
+                stable_iters += 1
+            else:
+                stable_iters = 0
+
+        if (time_budget_s is not None
+                and stable_iters >= 2
+                and depth >= 4
+                and (time.monotonic() - start) > 0.5 * time_budget_s):
+            break
+
+        prev_score = score
+        prev_move = move
 
     return best_move, best_score
 
