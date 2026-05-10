@@ -346,6 +346,9 @@ def quiescence(board: chess.Board, alpha: float, beta: float,
     if board.is_game_over():
         return evaluate(board)
 
+    if board.is_repetition(2):
+        return 0
+
     stand_pat = evaluate(board)
 
     if maximizing:
@@ -403,6 +406,9 @@ def minimax(board: chess.Board, depth: int, alpha: float, beta: float,
 
     if board.is_game_over():
         return evaluate(board)
+
+    if ply > 0 and board.is_repetition(2):
+        return 0
 
     in_check = board.is_check()
 
@@ -571,8 +577,6 @@ def iterative_search(board: chess.Board,
 
     legal = list(board.legal_moves)
 
-    # Forced move: only one legal option, no need to search at all. Common
-    # in forced recaptures / forced king moves -- saves us seconds per game.
     if len(legal) == 1:
         return legal[0], 0.0
 
@@ -598,14 +602,9 @@ def iterative_search(board: chess.Board,
             if info_callback is not None:
                 info_callback(depth, score, move)
 
-        # Found a forced mate -- no point searching deeper.
         if score == math.inf or score == -math.inf:
             break
 
-        # Adaptive early-exit: if the best move and score have been stable
-        # across the last few iterations and we've already used a meaningful
-        # chunk of our budget, stop. Searching deeper rarely changes the
-        # decision in quiet positions; saves time for critical ones.
         if prev_score is not None and prev_move is not None:
             score_stable = abs(score - prev_score) < 25
             move_stable = move == prev_move
