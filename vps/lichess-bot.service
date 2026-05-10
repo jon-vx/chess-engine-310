@@ -1,0 +1,23 @@
+[Unit]
+Description=lichess-bot polling daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=bot
+Group=bot
+WorkingDirectory=/home/bot/lichess-bot
+ExecStart=/home/bot/lichess-bot/venv/bin/python lichess-bot.py
+Restart=on-failure
+RestartSec=10s
+# logs go to journald: `journalctl -u lichess-bot -f`
+
+# Light hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/home/bot
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

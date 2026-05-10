@@ -153,9 +153,22 @@ activemq-data/
 .venv
 env/
 venv/
+venv-*/
 ENV/
 env.bak/
 venv.bak/
+
+# --- Project-specific ---
+# lichess-bot has its own clone here; never commit it (its config.yml has the
+# OAuth token).
+lichess-bot/
+
+# Runtime artefacts
+*.log
+*.pgn
+nohup.out
+*.token
+.DS_Store
 
 # Spyder project settings
 .spyderproject

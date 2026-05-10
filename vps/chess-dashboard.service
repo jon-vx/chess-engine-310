@@ -1,0 +1,22 @@
+[Unit]
+Description=chess bot dashboard (public, port 8766)
+After=network.target
+
+[Service]
+Type=simple
+User=bot
+Group=bot
+WorkingDirectory=/home/bot/chess-engine-310
+Environment=DASH_BIND=0.0.0.0
+Environment=DASH_PORT=8766
+ExecStart=/usr/bin/python3 dashboard.py
+Restart=on-failure
+RestartSec=5s
+
+# Light hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
