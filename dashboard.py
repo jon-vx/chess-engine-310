@@ -19,6 +19,7 @@ DASHBOARD_HTML = r"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>__BOT__ // ARCADE</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -161,6 +162,44 @@ DASHBOARD_HTML = r"""<!doctype html>
     gap: 16px;
   }
   @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+
+  /* ============ MOBILE / NARROW ============ */
+  @media (max-width: 520px) {
+    .screen        { padding: 20px 12px 40px; }
+    .marquee       { font-size: 7px; letter-spacing: 2px; margin-bottom: 10px; }
+    .title .name   { font-size: 14px; letter-spacing: 1px; }
+    .title .badge  { font-size: 7px; padding: 2px 4px; margin-left: 6px; vertical-align: 3px; }
+    .player-line   { font-size: 6px; letter-spacing: 2px; }
+    .status-line   { font-size: 8px; margin: 14px 0 22px; }
+    .panel         { padding: 18px 12px 14px; }
+    .panel-title   { font-size: 7px; }
+
+    /* Score boxes stay 3-up but slimmer */
+    .score-box .val { font-size: 16px; }
+    .score-box .lbl { font-size: 6px; letter-spacing: 1px; margin-bottom: 6px; }
+    .winrate-line   { font-size: 9px; }
+    .total-line     { font-size: 6px; }
+
+    /* Ratings table: smaller, drop the ±RD trailing label */
+    table th       { font-size: 6px; padding: 5px 3px; }
+    table td       { font-size: 8px; padding: 6px 3px; }
+    .rating-num    { font-size: 11px; }
+    .rd            { display: none; }
+
+    /* Battle log: drop the perf column, tighten everything else */
+    .log-row {
+      grid-template-columns: 44px 1fr 36px 56px;
+      gap: 6px;
+      font-size: 7px;
+      padding: 7px 0;
+    }
+    .log-row .perf     { display: none; }
+    .opp               { font-size: 8px; }
+    .opp .tlt          { font-size: 6px; margin-right: 2px; }
+    .opp-rating        { font-size: 7px; }
+    .tag               { font-size: 6px; padding: 3px 0; }
+    .hud-footer        { font-size: 6px; letter-spacing: 1px; flex-wrap: wrap; gap: 6px; }
+  }
 
   /* ============ RATINGS ============ */
   table { width: 100%; border-collapse: collapse; }

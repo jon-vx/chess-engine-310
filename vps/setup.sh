@@ -1,18 +1,4 @@
 #!/usr/bin/env bash
-# One-shot bootstrap for a fresh Ubuntu 24.04 droplet.
-# Run as root:
-#   bash setup.sh                                          # rsync workflow
-#   bash setup.sh https://github.com/USER/chess-engine-310.git   # clone workflow
-#
-# What it does:
-#   - apt deps (git, build tools, ufw, python3-venv)
-#   - creates a 'bot' user (with the same SSH key as root, so you can ssh bot@...)
-#   - opens ufw on 22 + 8766
-#   - downloads PyPy 7.3.19 (Python 3.11 compat) into /home/bot/.local/
-#   - clones lichess-bot into /home/bot/lichess-bot, sets up its CPython venv
-#   - if a REPO_URL is provided: clones chess-engine-310 into /home/bot/
-#     otherwise: makes an empty /home/bot/chess-engine-310/ for you to rsync into
-#   - sets up the engine PyPy venv either way
 
 set -euo pipefail
 
@@ -97,46 +83,4 @@ sudo -u bot bash -c "
 
 cat <<'EOF'
 
-============================================================
- Bootstrap complete.
-
- Next steps (from your laptop):
-
-   1. rsync the engine code:
-        rsync -av --exclude=venv --exclude=venv-pypy --exclude=__pycache__ \
-              --exclude=.git --exclude=vps \
-              /home/stellz/dev/chess-engine-310/ \
-              bot@VPS_IP:/home/bot/chess-engine-310/
-
-   2. rsync the lichess-bot config (then edit token + paths on VPS):
-        rsync -av /home/stellz/dev/lichess-bot/config.yml \
-              bot@VPS_IP:/home/bot/lichess-bot/config.yml
-
-   3. SSH into the VPS as bot:
-        ssh bot@VPS_IP
-
-      Then on the VPS:
-        # fix engine path
-        sed -i 's|/home/stellz/dev/chess-engine-310|/home/bot/chess-engine-310|g' \
-            ~/lichess-bot/config.yml
-
-        # paste new token (NOT the leaked one)
-        nano ~/lichess-bot/config.yml   # change the `token:` line
-
-        chmod 600 ~/lichess-bot/config.yml
-        chmod +x ~/chess-engine-310/run-uci.sh ~/chess-engine-310/run-bot.sh
-
-   4. Install + start systemd units (back as root):
-        sudo cp ~bot/chess-engine-310/vps/lichess-bot.service     /etc/systemd/system/
-        sudo cp ~bot/chess-engine-310/vps/chess-dashboard.service /etc/systemd/system/
-        sudo systemctl daemon-reload
-        sudo systemctl enable --now lichess-bot chess-dashboard
-
-   5. Verify:
-        systemctl status lichess-bot chess-dashboard
-        journalctl -u lichess-bot -f
-        curl -s http://localhost:8766/ | head -5
-
-   6. Visit http://VPS_IP:8766 in a browser.
-============================================================
 EOF
