@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # One-shot bootstrap for a fresh Ubuntu 24.04 droplet.
-# Run as root:    bash setup.sh
+# Run as root:
+#   bash setup.sh                                          # rsync workflow
+#   bash setup.sh https://github.com/USER/chess-engine-310.git   # clone workflow
 #
 # What it does:
 #   - apt deps (git, build tools, ufw, python3-venv)
@@ -8,15 +10,13 @@
 #   - opens ufw on 22 + 8766
 #   - downloads PyPy 7.3.19 (Python 3.11 compat) into /home/bot/.local/
 #   - clones lichess-bot into /home/bot/lichess-bot, sets up its CPython venv
-#   - creates an empty /home/bot/chess-engine-310/, sets up its PyPy venv
-#
-# After this finishes you still need to:
-#   1. rsync your engine code into /home/bot/chess-engine-310/
-#   2. drop config.yml (with NEW token) into /home/bot/lichess-bot/
-#   3. install + start the systemd units
+#   - if a REPO_URL is provided: clones chess-engine-310 into /home/bot/
+#     otherwise: makes an empty /home/bot/chess-engine-310/ for you to rsync into
+#   - sets up the engine PyPy venv either way
 
 set -euo pipefail
 
+REPO_URL="${1:-}"
 PYPY_VER="pypy3.11-v7.3.19-linux64"
 PYPY_URL="https://downloads.python.org/pypy/${PYPY_VER}.tar.bz2"
 
@@ -70,6 +70,18 @@ sudo -u bot bash -c '
     ./venv/bin/pip install --quiet --upgrade pip
     ./venv/bin/pip install --quiet -r requirements.txt
 '
+
+if [ -n "$REPO_URL" ]; then
+    echo ">> Cloning chess-engine-310 from $REPO_URL ..."
+    sudo -u bot bash -c "
+        set -euo pipefail
+        cd ~
+        if [ ! -d chess-engine-310 ]; then
+            git clone '$REPO_URL' chess-engine-310
+        fi
+        chmod +x ~/chess-engine-310/run-uci.sh
+    "
+fi
 
 echo ">> Setting up engine venv (PyPy)..."
 sudo -u bot bash -c "
