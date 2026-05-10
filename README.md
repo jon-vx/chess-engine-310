@@ -3,6 +3,8 @@
 A pure-Python chess engine + Lichess bot. Plays as
 [`bigbotontheblock`](https://lichess.org/@/bigbotontheblock) on Lichess.
 
+**Live stats:** https://bigbotontheblock.netlify.app
+
 ## Engine features
 
 - Iterative-deepening alpha-beta with quiescence search
@@ -20,4 +22,6 @@ uci.py                          UCI driver (stdin/stdout)
 run-uci.sh                      wrapper that lichess-bot invokes
 dashboard.py                    localhost stats dashboard
 ```
+
+![mate](images/mate.png)
 
