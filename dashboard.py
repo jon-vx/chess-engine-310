@@ -357,7 +357,7 @@ DASHBOARD_HTML = r"""<!doctype html>
         </div>
       </div>
       <div class="winrate-line">WIN RATE: <span id="winrate">--</span></div>
-      <div class="total-line">TOTAL GAMES: <span id="total">--</span></div>
+      <div class="total-line">LAST <span id="total">--</span> GAMES</div>
     </section>
 
   </div>

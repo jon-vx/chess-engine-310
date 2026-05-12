@@ -83,22 +83,19 @@ def compute_budget(args: list[str], white_to_move: bool) -> tuple[float | None, 
     if my_time is None:
         return 1.0, 64
 
-    # Time manager: estimate how many of *our* moves remain in this game and
-    # spend a slice of remaining time per move. Move-horizon of 40 is a
-    # conservative average game length (vs the previous 30, which made the
-    # bot flag in long games).
-    moves_left = movestogo if movestogo and movestogo > 0 else 40
+    moves_left = movestogo if movestogo and movestogo > 0 else 60
 
-    # Panic tiers: when the clock gets low, spend less per move.
-    if my_time < 10_000:           # <10s left: dump moves fast
-        budget_ms = my_time / 30
-    elif my_time < 30_000:         # <30s left: be cautious
-        budget_ms = my_time / 25 + 0.5 * my_inc
-    else:                          # normal mode
+    if my_time < 10_000:
+        budget_ms = my_time / 40
+    elif my_time < 30_000:
+        budget_ms = my_time / 30 + 0.5 * my_inc
+    elif my_time < 60_000:
+        budget_ms = my_time / 20 + 0.7 * my_inc
+    else:
         budget_ms = my_time / moves_left + 0.85 * my_inc
 
-    budget_ms = min(budget_ms, my_time * 0.4)   # never spend >40% of remaining
-    budget_ms = max(50.0, budget_ms - 100.0)    # buffer for emit + network
+    budget_ms = min(budget_ms, my_time * 0.25)
+    budget_ms = max(50.0, budget_ms - 100.0)
     return budget_ms / 1000.0, 64
 
 

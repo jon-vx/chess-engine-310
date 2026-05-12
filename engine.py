@@ -614,9 +614,9 @@ def iterative_search(board: chess.Board,
                 stable_iters = 0
 
         if (time_budget_s is not None
-                and stable_iters >= 2
+                and stable_iters >= 1
                 and depth >= 4
-                and (time.monotonic() - start) > 0.5 * time_budget_s):
+                and (time.monotonic() - start) > 0.3 * time_budget_s):
             break
 
         prev_score = score
